@@ -10,19 +10,15 @@ const Chat = () => {
   const {user,users} = useSelector(state => state)
   const param = useParams()  
   const [message, setMessage] = useState("")
-  const dispatch = useDispatch()
-  const [chatLog, setChatLog] = useState([])
+  const dispatch = useDispatch() 
+  const [chatUser, setChatUser] = useState(null)
   
   useEffect(() => {
-    
-    const chatUser = users.filter(item => item._id === param.id)[0]
-
-    if(chatUser && "messages" in chatUser){
-      setChatLog(chatUser["messages"])
+    if(chatUser === null){
+      setChatUser(users.filter(item => item._id === param.id)[0])
     }
-
   }, [users,param])
-
+  
   const handleChange = (e) => setMessage(e.target.value)
 
   const handleSubmit = (e) => {
@@ -42,17 +38,21 @@ const Chat = () => {
 
     setMessage("")
   }
+  if(!chatUser) return <h1>Loading...</h1>
   
   return (
     <div id = "chat-window">
       <div id = "display-chat">
         <ul>
           {
-            chatLog.length > 0 && chatLog.map((item,i) => {
-              return <li key={i} className = {item.from === user._id ? "from-user" : "from-friend"}>
-                <span className = "chat-display-name">{item.from === user._id && user.fullName}</span>
-                <span className = "chat-friend-display-name">{item.from !== user._id ? users.filter(user => item._id === user.from)[0]["fullName"] : ""}</span>
-                {item.content}</li>
+            chatUser.messages && chatUser.messages.map((item,i) => {
+              return (
+                <li key = {i} className = {item.from === user._id ? "from-user" : "from-friend"}>
+                  <span className = "chat-display-name">{item.from === user._id && user.fullName}</span>
+                  <span className = "chat-display-name">{item.from === chatUser._id && chatUser.fullName}</span>
+                  {item.content}
+                </li>
+              )
             })
           }
         </ul>
